@@ -1,0 +1,431 @@
+addrmap rtc_am {
+  name = "Real Time Clock";
+
+  default regwidth = 32;
+  default sw = rw;
+  default hw = r;
+
+  reg {
+    name = "Config Register";
+
+    field { 
+      desc = "Enable signal for clk generator
+      Possible values: [br]
+      [list]
+      [*] 0 - generator off
+      [*] 1 - generator on
+      [/list]";
+    } gen_en[1] = 1;
+
+    field { 
+      desc = "Select clock signal [br]
+      Possible values: [br]
+      [list]
+      [*] 0 - internal clock
+      [*] 1 - external clock 
+      [/list]";
+    } sel_clk[1] = 0;
+
+    field { 
+      desc = "Select mode signal [br]
+      Possible values: [br]
+      [list]
+      [*] 0 - 24h mode
+      [*] 1 - 12h mode 
+      [/list]";
+    } sel_mode[1] = 0;
+
+  } CONFIG @ 0x0 ;
+
+  reg {
+    name = "Current Seconds Register";
+
+    field {
+      hw = rw;
+      desc = "Seconds value";
+    } sec[6] = 0;
+
+  } sec_reg @ 0x4;
+
+  reg {
+    name = "Current Minutes Register";
+
+    field {
+      hw = rw; 
+      desc = "Minutes value";
+    } min[6] = 0;
+
+  } min_reg @0x8;
+
+  reg {
+    name = "Current Hours Register";
+
+    field { 
+      hw = rw;
+      desc = "Hours value";
+    } hour[5] = 0;
+
+    field { 
+      hw = rw;
+      desc = "12/24h mode flag
+      Possible values: [br]
+      [list]
+      [*] 0 - 24h mode
+      [*] 1 - 12h mode 
+      [/list]";
+    } mode_12_24[1] = 0;
+
+    field { 
+      hw = rw;
+      desc = "AM/PM flag
+      Possible values: [br]
+      [list]
+      [*] 0 - AM
+      [*] 1 - PM 
+      [/list]";
+    } mode_AM_PM[1] = 0;
+
+  } hours_reg @0xC;
+
+  reg {
+    name = "Current Day of Week Register";
+
+    field { 
+      hw = rw;
+      desc = "Day of week value
+      Possible values: [br]
+      [list]
+      [*] 1 - Sunday
+      [*] 2 - Monday
+      [*] 3 - Tuesday
+      [*] 4 - Wednesday
+      [*] 5 - Thursday
+      [*] 6 - Friday
+      [*] 7 - Saturday
+      [/list]";
+    } day_of_week[3] = 0x1;
+
+  } day_of_week_reg @0x10;
+
+  reg {
+    name = "Current Day of Month Register";
+
+    field { 
+      hw = rw;
+      desc = "Day of month value";
+    } day_of_month[5] = 0x1;
+
+  } day_of_month_reg @0x14;
+
+  reg {
+    name = "Current Month Register";
+
+    field { 
+      hw = rw;
+      desc = "Month value";
+    } month[4] = 0x1;
+
+  } month_reg @0x18;
+
+  reg {
+    name = "Current Year Register";
+
+    field { 
+      hw = rw;
+      desc = "Year value";
+    } year[12] = 0x7D0;
+
+  } year_reg @0x1C;
+
+  reg {
+    name = "Constant for divider register";
+
+    field { 
+      desc = "Constant for clk divider";
+    } const[32] = 0;
+
+  } const_reg @0x20;
+
+  reg {
+    name = "Initial Seconds Register";
+
+    field { 
+      desc = "Initial Seconds value";
+    } sec[6] = 0;
+
+  } init_sec_reg @ 0x24;
+
+  reg {
+    name = "Initial Minutes Register";
+
+    field { 
+      desc = "Initial Minutes value";
+    } min[6] = 0;
+
+  } init_min_reg @0x28;
+
+  reg {
+    name = "Initial Hours Register";
+
+    field { 
+      desc = "Initial Hours value";
+    } hour[6] = 0;
+
+    field { 
+      desc = "Initial 12/24h mode flag
+      Possible values: [br]
+      [list]
+      [*] 0 - 24h mode
+      [*] 1 - 12h mode 
+      [/list]";
+    } mode_12_24[1] = 0;
+
+    field { 
+      desc = "Initial AM/PM flag
+      Possible values: [br]
+      [list]
+      [*] 0 - AM
+      [*] 1 - PM 
+      [/list]";
+    } mode_AM_PM[1] = 0;
+
+  } init_hours_reg @0x2C;
+
+  reg {
+    name = "Initial Day of Week Register";
+
+    field { 
+      desc = "Initial Day of week value
+      Possible values: [br]
+      [list]
+      [*] 1 - Sunday
+      [*] 2 - Monday
+      [*] 3 - Tuesday
+      [*] 4 - Wednesday
+      [*] 5 - Thursday
+      [*] 6 - Friday
+      [*] 7 - Saturday
+      [/list]";
+    } day_of_week[3] = 0x1;
+
+  } init_day_of_week_reg @0x30;
+
+  reg {
+    name = "Initial Day of Month Register";
+
+    field { 
+      desc = "Initial Day of month value";
+    } day_of_month[5] = 0x1;
+
+  } init_day_of_month_reg @0x34;
+
+  reg {
+    name = "Initial Month Register";
+
+    field { 
+      desc = "Initial Month value";
+    } month[4] = 0x1;
+
+  } init_month_reg @0x38;
+
+  reg {
+    name = "Initial Year Register";
+
+    field { 
+      desc = "Initial Year value";
+    } year[12] = 0x7D0;
+
+  } init_year_reg @0x3C;
+
+  reg {
+    name = "Interrupted input Seconds Register";
+
+    field { 
+      desc = "Interrupted input Seconds value";
+    } sec[6] = 0;
+
+  } init_sec_reg @ 0x40;
+
+  reg {
+    name = "Interrupted input Minutes Register";
+
+    field { 
+      desc = "Interrupted input Minutes value";
+    } min[6] = 0;
+
+  } init_min_reg @0x44;
+
+  reg {
+    name = "Interrupted input Hours Register";
+
+    field { 
+      desc = "Interrupted input Hours value";
+    } hour[6] = 0;
+
+    field { 
+      desc = "Interrupted input 12/24h mode flag
+      Possible values: [br]
+      [list]
+      [*] 0 - 24h mode
+      [*] 1 - 12h mode 
+      [/list]";
+    } mode_12_24[1] = 0;
+
+    field { 
+      desc = "Interrupted input AM/PM flag
+      Possible values: [br]
+      [list]
+      [*] 0 - AM
+      [*] 1 - PM 
+      [/list]";
+    } mode_AM_PM[1] = 0;
+
+  } init_hours_reg @0x48;
+
+  reg {
+    name = "Interrupted input Day of Week Register";
+
+    field { 
+      desc = "Interrupted input Day of week value
+      Possible values: [br]
+      [list]
+      [*] 1 - Sunday
+      [*] 2 - Monday
+      [*] 3 - Tuesday
+      [*] 4 - Wednesday
+      [*] 5 - Thursday
+      [*] 6 - Friday
+      [*] 7 - Saturday
+      [/list]";
+    } day_of_week[3] = 0x1;
+
+  } init_day_of_week_reg @0x4C;
+
+  reg {
+    name = "Interrupted input Day of Month Register";
+
+    field { 
+      desc = "Interrupted input Day of month value";
+    } day_of_month[5] = 0x1;
+
+  } init_day_of_month_reg @0x50;
+
+  reg {
+    name = "Interrupted input Month Register";
+
+    field { 
+      desc = "Interrupted input Month value";
+    } month[4] = 0x1;
+
+  } init_month_reg @0x54;
+
+  reg {
+    name = "Interrupted input Year Register";
+
+    field { 
+      desc = "Interrupted input Year value";
+    } year[12] = 0x7D0;
+
+  } init_year_reg @0x58;
+
+  reg {
+    name = "Interrupted output Seconds Register";
+
+    field {
+      hw = rw;
+      desc = "Interrupted output Seconds value";
+    } sec[6] = 0;
+
+  } sec_reg @ 0x5C;
+
+  reg {
+    name = "Interrupted output Minutes Register";
+
+    field {
+      hw = rw; 
+      desc = "Interrupted output Minutes value";
+    } min[6] = 0;
+
+  } min_reg @0x60;
+
+  reg {
+    name = "Interrupted output Hours Register";
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output Hours value";
+    } hour[6] = 0;
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output 12/24h mode flag
+      Possible values: [br]
+      [list]
+      [*] 0 - 24h mode
+      [*] 1 - 12h mode 
+      [/list]";
+    } mode_12_24[1] = 0;
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output AM/PM flag
+      Possible values: [br]
+      [list]
+      [*] 0 - AM
+      [*] 1 - PM 
+      [/list]";
+    } mode_AM_PM[1] = 0;
+
+  } hours_reg @0x64;
+
+  reg {
+    name = "Interrupted output Day of Week Register";
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output Day of week value
+      Possible values: [br]
+      [list]
+      [*] 1 - Sunday
+      [*] 2 - Monday
+      [*] 3 - Tuesday
+      [*] 4 - Wednesday
+      [*] 5 - Thursday
+      [*] 6 - Friday
+      [*] 7 - Saturday
+      [/list]";
+    } day_of_week[3] = 0x1;
+
+  } day_of_week_reg @0x68;
+
+  reg {
+    name = "Interrupted output Day of Month Register";
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output Day of month value";
+    } day_of_month[5] = 0x1;
+
+  } day_of_month_reg @0x6C;
+
+  reg {
+    name = "Interrupted output Month Register";
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output Month value";
+    } month[4] = 0x1;
+
+  } month_reg @0x70;
+
+  reg {
+    name = "Interrupted output Year Register";
+
+    field { 
+      hw = rw;
+      desc = "Interrupted output Year value";
+    } year[12] = 0x7D0;
+
+  } year_reg @0x74;
+
+};
