@@ -6,6 +6,19 @@ addrmap rtc_am {
   default hw = r;
 
   reg {
+    name = "Enable register";
+
+    field {
+      desc = "Enable signal for counter
+      Possible values: [br]
+      [list]
+      [*] 0 - counter off
+      [*] 1 - counter on
+      [/list]";
+    } enable [1];
+  } enable_reg @ 0x00;
+
+  reg {
     name = "Config Register";
 
     field { 
@@ -35,7 +48,7 @@ addrmap rtc_am {
       [/list]";
     } sel_mode[1] = 0;
 
-  } CONFIG @ 0x0 ;
+  } config_reg @ 0x4;
 
   reg {
     name = "Current Seconds Register";
@@ -45,7 +58,7 @@ addrmap rtc_am {
       desc = "Seconds value";
     } sec[6] = 0;
 
-  } sec_reg @ 0x4;
+  } cur_sec_reg @ 0x8;
 
   reg {
     name = "Current Minutes Register";
@@ -55,7 +68,7 @@ addrmap rtc_am {
       desc = "Minutes value";
     } min[6] = 0;
 
-  } min_reg @0x8;
+  } cur_min_reg @0xC;
 
   reg {
     name = "Current Hours Register";
@@ -85,7 +98,7 @@ addrmap rtc_am {
       [/list]";
     } mode_AM_PM[1] = 0;
 
-  } hours_reg @0xC;
+  } cur_hours_reg @0x10;
 
   reg {
     name = "Current Day of Week Register";
@@ -105,7 +118,7 @@ addrmap rtc_am {
       [/list]";
     } day_of_week[3] = 0x1;
 
-  } day_of_week_reg @0x10;
+  } cur_day_of_week_reg @0x14;
 
   reg {
     name = "Current Day of Month Register";
@@ -115,7 +128,7 @@ addrmap rtc_am {
       desc = "Day of month value";
     } day_of_month[5] = 0x1;
 
-  } day_of_month_reg @0x14;
+  } cur_day_of_month_reg @0x18;
 
   reg {
     name = "Current Month Register";
@@ -125,7 +138,7 @@ addrmap rtc_am {
       desc = "Month value";
     } month[4] = 0x1;
 
-  } month_reg @0x18;
+  } cur_month_reg @0x1C;
 
   reg {
     name = "Current Year Register";
@@ -135,7 +148,7 @@ addrmap rtc_am {
       desc = "Year value";
     } year[12] = 0x7D0;
 
-  } year_reg @0x1C;
+  } cur_year_reg @0x20;
 
   reg {
     name = "Constant for divider register";
@@ -144,7 +157,7 @@ addrmap rtc_am {
       desc = "Constant for clk divider";
     } const[32] = 0;
 
-  } const_reg @0x20;
+  } const_reg @0x24;
 
   reg {
     name = "Initial Seconds Register";
@@ -153,7 +166,7 @@ addrmap rtc_am {
       desc = "Initial Seconds value";
     } sec[6] = 0;
 
-  } init_sec_reg @ 0x24;
+  } init_sec_reg @ 0x28;
 
   reg {
     name = "Initial Minutes Register";
@@ -162,7 +175,7 @@ addrmap rtc_am {
       desc = "Initial Minutes value";
     } min[6] = 0;
 
-  } init_min_reg @0x28;
+  } init_min_reg @0x2C;
 
   reg {
     name = "Initial Hours Register";
@@ -189,7 +202,7 @@ addrmap rtc_am {
       [/list]";
     } mode_AM_PM[1] = 0;
 
-  } init_hours_reg @0x2C;
+  } init_hours_reg @0x30;
 
   reg {
     name = "Initial Day of Week Register";
@@ -208,7 +221,7 @@ addrmap rtc_am {
       [/list]";
     } day_of_week[3] = 0x1;
 
-  } init_day_of_week_reg @0x30;
+  } init_day_of_week_reg @0x34;
 
   reg {
     name = "Initial Day of Month Register";
@@ -217,7 +230,7 @@ addrmap rtc_am {
       desc = "Initial Day of month value";
     } day_of_month[5] = 0x1;
 
-  } init_day_of_month_reg @0x34;
+  } init_day_of_month_reg @0x38;
 
   reg {
     name = "Initial Month Register";
@@ -226,7 +239,7 @@ addrmap rtc_am {
       desc = "Initial Month value";
     } month[4] = 0x1;
 
-  } init_month_reg @0x38;
+  } init_month_reg @0x3C;
 
   reg {
     name = "Initial Year Register";
@@ -235,7 +248,7 @@ addrmap rtc_am {
       desc = "Initial Year value";
     } year[12] = 0x7D0;
 
-  } init_year_reg @0x3C;
+  } init_year_reg @0x40;
 
   reg {
     name = "Interrupted input Seconds Register";
@@ -244,7 +257,7 @@ addrmap rtc_am {
       desc = "Interrupted input Seconds value";
     } sec[6] = 0;
 
-  } init_sec_reg @ 0x40;
+  } ir_in_sec_reg @ 0x44;
 
   reg {
     name = "Interrupted input Minutes Register";
@@ -253,7 +266,7 @@ addrmap rtc_am {
       desc = "Interrupted input Minutes value";
     } min[6] = 0;
 
-  } init_min_reg @0x44;
+  } ir_in_min_reg @0x48;
 
   reg {
     name = "Interrupted input Hours Register";
@@ -280,7 +293,7 @@ addrmap rtc_am {
       [/list]";
     } mode_AM_PM[1] = 0;
 
-  } init_hours_reg @0x48;
+  } ir_in_hours_reg @0x4C;
 
   reg {
     name = "Interrupted input Day of Week Register";
@@ -299,7 +312,7 @@ addrmap rtc_am {
       [/list]";
     } day_of_week[3] = 0x1;
 
-  } init_day_of_week_reg @0x4C;
+  } ir_in_day_of_week_reg @0x50;
 
   reg {
     name = "Interrupted input Day of Month Register";
@@ -308,7 +321,7 @@ addrmap rtc_am {
       desc = "Interrupted input Day of month value";
     } day_of_month[5] = 0x1;
 
-  } init_day_of_month_reg @0x50;
+  } ir_in_day_of_month_reg @0x54;
 
   reg {
     name = "Interrupted input Month Register";
@@ -317,7 +330,7 @@ addrmap rtc_am {
       desc = "Interrupted input Month value";
     } month[4] = 0x1;
 
-  } init_month_reg @0x54;
+  } ir_in_month_reg @0x58;
 
   reg {
     name = "Interrupted input Year Register";
@@ -326,7 +339,7 @@ addrmap rtc_am {
       desc = "Interrupted input Year value";
     } year[12] = 0x7D0;
 
-  } init_year_reg @0x58;
+  } ir_in_year_reg @0x5C;
 
   reg {
     name = "Interrupted output Seconds Register";
@@ -336,7 +349,7 @@ addrmap rtc_am {
       desc = "Interrupted output Seconds value";
     } sec[6] = 0;
 
-  } sec_reg @ 0x5C;
+  } ir_out_sec_reg @ 0x60;
 
   reg {
     name = "Interrupted output Minutes Register";
@@ -346,7 +359,7 @@ addrmap rtc_am {
       desc = "Interrupted output Minutes value";
     } min[6] = 0;
 
-  } min_reg @0x60;
+  } ir_out_min_reg @0x64;
 
   reg {
     name = "Interrupted output Hours Register";
@@ -376,7 +389,7 @@ addrmap rtc_am {
       [/list]";
     } mode_AM_PM[1] = 0;
 
-  } hours_reg @0x64;
+  } ir_out_hours_reg @0x68;
 
   reg {
     name = "Interrupted output Day of Week Register";
@@ -396,7 +409,7 @@ addrmap rtc_am {
       [/list]";
     } day_of_week[3] = 0x1;
 
-  } day_of_week_reg @0x68;
+  } ir_out_day_of_week_reg @0x6C;
 
   reg {
     name = "Interrupted output Day of Month Register";
@@ -406,7 +419,7 @@ addrmap rtc_am {
       desc = "Interrupted output Day of month value";
     } day_of_month[5] = 0x1;
 
-  } day_of_month_reg @0x6C;
+  } ir_out_day_of_month_reg @0x70;
 
   reg {
     name = "Interrupted output Month Register";
@@ -416,7 +429,7 @@ addrmap rtc_am {
       desc = "Interrupted output Month value";
     } month[4] = 0x1;
 
-  } month_reg @0x70;
+  } ir_out_month_reg @0x74;
 
   reg {
     name = "Interrupted output Year Register";
@@ -426,6 +439,6 @@ addrmap rtc_am {
       desc = "Interrupted output Year value";
     } year[12] = 0x7D0;
 
-  } year_reg @0x74;
+  } ir_out_year_reg @0x78;
 
 };
