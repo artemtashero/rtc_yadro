@@ -23,6 +23,14 @@ module time_counter(
 );
 
   logic [4:0] max_day_in_month;
+  assign last_sec   = (cur_sec_o == 59);
+  assign last_min   = (cur_min_o == 59);
+  assign hour_11    = (cur_hour_o == 11);
+  assign hour_12    = (cur_hour_o == 12);
+  assign hour_23    = (cur_hour_o == 23);
+  assign last_DoM   = (cur_day_of_month_o == max_day_in_month);
+  assign last_DoW   = (cur_day_of_week_o == 7);
+  assign last_month = (cur_month_o == 12);
 
   //define max day
   always_comb begin
@@ -90,33 +98,33 @@ module time_counter(
       cur_sec_o <= cur_sec_o + 1;
 
       //min counter
-      if (cur_sec_o == 59) begin
+      if (last_sec) begin
         cur_sec_o <= 0;
         cur_min_o <= cur_min_o + 1;
       end
 
       //hour counter
-      if ((cur_min_o == 59) && (cur_sec_o == 59)) begin
+      if (last_min && last_sec) begin
         cur_min_o  <= 0;
         cur_hour_o <= cur_hour_o + 1;
       end
 
       //day of month and day of week counter with am/pm flag
       if (mode_i) begin
-        cur_mode_o[0] <= 1;
-        if ((cur_mode_o[1]) && (cur_hour_o == 11) && (cur_min_o == 59) && (cur_sec_o == 59)) begin
+        cur_mode_o[0]   <= 1;
+        if (cur_mode_o[1] && hour_11 && last_min && last_sec) begin
           cur_mode_o[1]      <= ~cur_mode_o[1];
           cur_day_of_month_o <= cur_day_of_month_o + 1;
           cur_day_of_week_o  <= cur_day_of_week_o  + 1;
         end 
-        else if ((!cur_mode_o[1]) && (cur_hour_o == 11) && (cur_min_o == 59) && (cur_sec_o == 59)) 
+        else if ((!cur_mode_o[1]) && hour_11 && last_min && last_sec) 
           cur_mode_o[1] <= ~cur_mode_o[1];
-        if ((cur_hour_o == 12) && (cur_min_o == 59) && (cur_sec_o == 59)) 
-          cur_hour_o <= 1;
+        if (hour_12 && last_min && last_sec) 
+          cur_hour_o    <= 1;
       end 
       else begin
         cur_mode_o <= 0;
-        if (cur_hour_o == 23) begin
+        if (hour_23) begin
           cur_hour_o         <= 0;
           cur_day_of_month_o <= cur_day_of_month_o + 1;
           cur_day_of_week_o  <= cur_day_of_week_o  + 1;
@@ -124,17 +132,17 @@ module time_counter(
       end
 
       //month counter
-      if ((cur_day_of_month_o == max_day_in_month) && (cur_hour_o == (mode_i ? 11 : 23)) && (cur_min_o == 59) && (cur_sec_o == 59) && (cur_mode_o[1] == 1)) begin
+      if (last_DoM && (cur_hour_o == (mode_i ? 11 : 23)) && last_min && last_sec && (cur_mode_o[1] == 1)) begin
         cur_day_of_month_o <= 1;
         cur_month_o        <= cur_month_o + 1;
       end
 
       //day of week counter
-      if ((cur_day_of_week_o == 7))
+      if (last_DoW)
         cur_day_of_week_o <= 1;
 
       //year counter
-      if ((cur_month_o == 12) && (cur_day_of_month_o == max_day_in_month) && (cur_hour_o == (mode_i ? 11 : 23)) && (cur_min_o == 59) && (cur_sec_o == 59) && (cur_mode_o[1] == 1)) begin
+      if (last_month && last_DoM && (cur_hour_o == (mode_i ? 11 : 23)) && last_min && last_sec && (cur_mode_o[1] == 1)) begin
         cur_month_o <= 1;
         cur_year_o  <= cur_year_o + 1;
       end
@@ -142,51 +150,3 @@ module time_counter(
   end
 
 endmodule
-
-
-
-
-
-      // if (cur_sec_o == 59) begin
-      //   cur_sec_o <= 0;
-      //   if (cur_min_o == 59) begin
-      //     cur_min_o <= 0;
-      //     if (cur_hour_o == (mode_i ? 11 : 23)) begin
-      //       cur_hour_o <= 0;
-      //       if (mode_i) begin
-      //         cur_mode_o[0] <= 1;
-      //         cur_mode_o[1] <= ~cur_mode_o[1];
-      //       end else
-      //         cur_mode_o = 2'b00;
-      //       if (cur_day_of_month_o == max_day_in_month) begin
-      //         cur_day_of_month_o <= 1;
-      //         if (cur_month_o == 12) begin
-      //           cur_month_o <= 1;
-      //           cur_year_o <= cur_year_o + 1;
-      //         end else 
-      //           cur_month_o <= cur_month_o + 1;
-      //       end else 
-      //         cur_day_of_month_o <= cur_day_of_month_o + 1;
-      //     end else 
-      //       cur_hour_o <= cur_hour_o + 1;
-      //   end else 
-      //     cur_min_o <= cur_min_o + 1;
-      // end else 
-      //   cur_sec_o <= cur_sec_o + 1;
-
-
-      // if ((cur_hour_o == (!mode_i ?  23 : (cur_mode_o[1]) ? 12 : 11)) && (cur_min_o == 59) && (cur_sec_o == 59)) begin
-      //   cur_hour_o <= 0;
-      //   if (cur_mode_o[1] == 0) begin
-      //   cur_day_of_month_o <= cur_day_of_month_o + 1;
-      //   cur_day_of_week_o  <= cur_day_of_week_o + 1;
-      //   end
-      // end
-
-
-      // if (mode_i) begin
-      //   cur_mode_o[0] <= 1;
-      //   if ((cur_hour_o == 11) && (cur_min_o == 59) && (cur_sec_o == 59)) 
-      //     cur_mode_o[1] <= ~cur_mode_o[1];
-      // end else
-      //   cur_mode_o <= 2'b00;
