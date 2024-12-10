@@ -5,10 +5,16 @@ module rtc_am (
         input wire clk,
         input wire arst_n,
 
-        apb_if.sp s_apb,
-
+        input logic PREADY,
+        input logic PRDATA,
+        input logic PSLVERR,
+        input logic PSEL,
+        input logic PWRITE,
+        input logic PADDR,
+        input logic PWDATA,
         input rtc_am_pkg::rtc_am__in_t hwif_in,
         output rtc_am_pkg::rtc_am__out_t hwif_out
+      //  apb_if.sp s_apb,
     );
 
     localparam RST_ACTIVE_LEVEL = 0;
@@ -42,12 +48,12 @@ module rtc_am (
             cpuif_wr_data <= '0;
         end else begin
             if(~is_active) begin
-                if(s_apb.PSEL) begin
+                if(PSEL) begin
                     is_active <= '1;
                     cpuif_req <= '1;
-                    cpuif_req_is_wr <= s_apb.PWRITE;
-                    cpuif_addr <= {s_apb.PADDR[31:2], 2'b0};
-                    cpuif_wr_data <= s_apb.PWDATA;
+                    cpuif_req_is_wr <= PWRITE;
+                    cpuif_addr <= {PADDR[31:2], 2'b0};
+                    cpuif_wr_data <= PWDATA;
                 end
             end else begin
                 cpuif_req <= '0;
@@ -60,9 +66,9 @@ module rtc_am (
     assign cpuif_wr_biten = '1;
 
     // Response
-    assign s_apb.PREADY = cpuif_rd_ack | cpuif_wr_ack | ~(arst_n ^ RST_ACTIVE_LEVEL);
-    assign s_apb.PRDATA = cpuif_rd_data;
-    assign s_apb.PSLVERR = cpuif_rd_err | cpuif_wr_err | ~(arst_n ^ RST_ACTIVE_LEVEL);
+    assign PREADY = cpuif_rd_ack | cpuif_wr_ack | ~(arst_n ^ RST_ACTIVE_LEVEL);
+    assign PRDATA = cpuif_rd_data;
+    assign PSLVERR = cpuif_rd_err | cpuif_wr_err | ~(arst_n ^ RST_ACTIVE_LEVEL);
 
     logic cpuif_req_masked;
 
@@ -213,6 +219,10 @@ module rtc_am (
                 logic next;
                 logic load_next;
             } sel_mode;
+            struct {
+                logic next;
+                logic load_next;
+            } en_preset;
         } config_reg;
         struct {
             struct {
@@ -439,6 +449,9 @@ module rtc_am (
             struct {
                 logic value;
             } sel_mode;
+            struct {
+                logic value;
+            } en_preset;
         } config_reg;
         struct {
             struct {
@@ -695,6 +708,27 @@ module rtc_am (
         end
     end
     assign hwif_out.config_reg.sel_mode.value = field_storage.config_reg.sel_mode.value;
+    // Field: rtc_am.config_reg.en_preset
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.config_reg.en_preset.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.config_reg && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.config_reg.en_preset.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+            load_next_c = '1;
+        end
+        field_combo.config_reg.en_preset.next = next_c;
+        field_combo.config_reg.en_preset.load_next = load_next_c;
+    end
+    always_ff @(posedge clk or negedge arst_n) begin
+        if(~arst_n) begin
+            field_storage.config_reg.en_preset.value <= 1'h0;
+        end else if(field_combo.config_reg.en_preset.load_next) begin
+            field_storage.config_reg.en_preset.value <= field_combo.config_reg.en_preset.next;
+        end
+    end
+    assign hwif_out.config_reg.en_preset.value = field_storage.config_reg.en_preset.value;
     // Field: rtc_am.cur_sec_reg.sec
     always_comb begin
         automatic logic [5:0] next_c;
@@ -1549,7 +1583,8 @@ module rtc_am (
     assign readback_array[1][0:0] = (decoded_reg_strb.config_reg && !decoded_req_is_wr) ? field_storage.config_reg.gen_en.value : '0;
     assign readback_array[1][1:1] = (decoded_reg_strb.config_reg && !decoded_req_is_wr) ? field_storage.config_reg.sel_clk.value : '0;
     assign readback_array[1][2:2] = (decoded_reg_strb.config_reg && !decoded_req_is_wr) ? field_storage.config_reg.sel_mode.value : '0;
-    assign readback_array[1][31:3] = '0;
+    assign readback_array[1][3:3] = (decoded_reg_strb.config_reg && !decoded_req_is_wr) ? field_storage.config_reg.en_preset.value : '0;
+    assign readback_array[1][31:4] = '0;
     assign readback_array[2][5:0] = (decoded_reg_strb.cur_sec_reg && !decoded_req_is_wr) ? field_storage.cur_sec_reg.sec.value : '0;
     assign readback_array[2][31:6] = '0;
     assign readback_array[3][5:0] = (decoded_reg_strb.cur_min_reg && !decoded_req_is_wr) ? field_storage.cur_min_reg.min.value : '0;

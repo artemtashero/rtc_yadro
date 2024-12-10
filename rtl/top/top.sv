@@ -1,92 +1,159 @@
 module rtc_top (
-  input logic ir_i,
-  input logic clk_external_i,
-  input logic rstn_i,
+  input  logic ir_i,
+  input  logic clk_external_i,
+  input  logic CLK_APB,
+  input  logic rstn_i,
+  input  logic PREADY,
+  input  logic PRDATA,
+  input  logic PSLVERR,
+  input  logic PSEL,
+  input  logic PWRITE,
+  input  logic PADDR,
+  input  logic PWDATA,
+  input  logic hwif_in,
+  output logic hwif_out,
   output logic ir_o
-
-
-
-
-  
 );
   
   logic clk_1Hz;
 
+  rtc_am_pkg::rtc_am__in_t hwif_in;
+  rtc_am_pkg::rtc_am__out_t hwif_out;
+ 
+  always_comb begin
+    //CLK GEN signals
+    gen_en_rf  = hwif_out.config_reg.gen_en.value;
+    sel_clk_rf = hwif_out.config_reg.sel_clk.value;
+    const_rf   = hwif_out.config_reg.const_.value;
+    //---------------------------------------------------
+
+    //TIME COUNTER signals
+    enable_rf            = hwif_out.enable_reg.enable.value;
+    mode_rf              = hwif_out.config_reg.sel_mode.value;
+    en_preset_rf         = hwif_out.config_reg.en_preset.value;
+    init_sec_rf          = hwif_out.init_sec_reg.sec.value;
+    init_min_rf          = hwif_out.init_min_reg.min.value;
+    init_hour_rf         = hwif_out.init_hours_reg.hour.value;
+    init_mode_rf         = { hwif_out.init_hours_reg.mode_AM_PM.value, hwif_out.init_hours_reg.mode_12_24.value };
+    init_day_of_week_rf  = hwif_out.init_day_of_week_reg.day_of_week.value;
+    init_day_of_month_rf = hwif_out.init_day_of_month_reg.day_of_month.value;
+    init_month_rf        = hwif_out.init_month_reg.month.value;
+    init_year_rf         = hwif_out.init_year_reg.year.value;
+
+    hwif_in.field_storage.cur_sec_reg.sec.value                   = cur_sec_rf;
+    hwif_in.field_storage.cur_min_reg.min.value                   = cur_min_rf;
+    hwif_in.field_storage.cur_hours_reg.hour.value                = cur_hour_rf;
+    hwif_in.field_storage.cur_hours_reg.mode_12_24.value          = cur_mode_rf[0];
+    hwif_in.field_storage.cur_hours_reg.mode_AM_PM.value          = cur_mode_rf[1];
+    hwif_in.field_storage.cur_day_of_week_reg.day_of_week.value   = cur_day_of_week_rf;
+    hwif_in.field_storage.cur_day_of_month_reg.day_of_month.value = cur_day_of_month_rf;
+    hwif_in.field_storage.cur_month_reg.month.value               = cur_month_rf;
+    hwif_in.field_storage.cur_year_reg.year.value                 = cur_year_rf;
+    //---------------------------------------------------
+
+    //INTERRUPT CONTROL signals
+    hwif_in.field_storage.ir_in_sec_reg.sec.value                   = ir_in_sec_rf;
+    hwif_in.field_storage.ir_in_min_reg.min.value                   = ir_in_min_rf;
+    hwif_in.field_storage.ir_in_hours_reg.hour.value                = ir_in_hour_rf;
+    hwif_in.field_storage.ir_in_hours_reg.mode_12_24.value          = ir_in_mode_rf[0];
+    hwif_in.field_storage.ir_in_hours_reg.mode_AM_PM.value          = ir_in_mode_rf[1];
+    hwif_in.field_storage.ir_in_day_of_week_reg.day_of_week.value   = ir_in_day_of_week_rf;
+    hwif_in.field_storage.ir_in_day_of_month_reg.day_of_month.value = ir_in_day_of_month_rf;
+    hwif_in.field_storage.ir_in_month_reg.month.value               = ir_in_month_rf;
+    hwif_in.field_storage.ir_in_year_reg.year.value                 = ir_in_year_rf;
+
+    ir_out_sec_rf          = hwif_out.ir_out_sec_reg.sec.value;
+    ir_out_min_rf          = hwif_out.ir_out_min_reg.min.value;
+    ir_out_hour_rf         = hwif_out.ir_out_hours_reg.hour.value;
+    ir_out_mode_rf         = { hwif_out.ir_out_hours_reg.mode_AM_PM.value, hwif_out.ir_out_hours_reg.mode_12_24.value };
+    ir_out_day_of_week_rf  = hwif_out.ir_out_day_of_week_reg.day_of_week.value;
+    ir_out_day_of_month_rf = hwif_out.ir_out_day_of_month_reg.day_of_month.value;
+    ir_out_month_rf        = hwif_out.ir_out_month_reg.month.value;
+    ir_out_year_rf         = hwif_out.ir_out_year_reg.year.value;
+    //---------------------------------------------------
+  end
+
   clk_gen  gen (
-    .clk_external_i(clk_external_i),
-    .gen_en_i(),
-    .rstn_i(rstn_i),
-    .sel_clk_i(),
-    .const_i(),
-    .clk_1Hz_o(clk_1Hz)
+    .clk_external_i        (clk_external_i),
+    .gen_en_i              (gen_en_rf),
+    .rstn_i                (rstn_i),
+    .sel_clk_i             (sel_clk_rf),
+    .const_i               (const_rf),
+    .clk_1Hz_o             (clk_1Hz)
   );
 
   time_counter tc (
-    .enable_i(),               
-    .clk_1Hz_i(clk_1Hz),      
-    .rstn_i(rstn_i),           
-    .mode_i(),                
-    .en_preset_i(),          
+    .enable_i              (enable_rf),               
+    .clk_1Hz_i             (clk_1Hz),      
+    .rstn_i                (rstn_i),           
+    .mode_i                (mode_rf),                
+    .en_preset_i           (en_preset_rf),          
 
-    .init_sec_i(),         
-    .init_min_i(),          
-    .init_hour_i(),          
-    .init_mode_i(),           
-    .init_day_of_week_i(),     
-    .init_day_of_month_i(),   
-    .init_month_i(),           
-    .init_year_i(),          
+    .init_sec_i            (init_sec_rf),         
+    .init_min_i            (init_min_rf),          
+    .init_hour_i           (init_hour_rf),          
+    .init_mode_i           (init_mode_rf),           
+    .init_day_of_week_i    (init_day_of_week_rf),     
+    .init_day_of_month_i   (init_day_of_month_rf),   
+    .init_month_i          (init_month_rf),           
+    .init_year_i           (init_year_rf),          
 
-    .cur_sec_o(),              
-    .cur_min_o(),            
-    .cur_hour_o(),           
-    .cur_mode_o(),         
-    .cur_day_of_week_o(),    
-    .cur_day_of_month_o(),  
-    .cur_month_o(),         
-    .cur_year_o()           
+    .cur_sec_o             (cur_sec_rf),              
+    .cur_min_o             (cur_min_rf),            
+    .cur_hour_o            (cur_hour_rf),           
+    .cur_mode_o            (cur_mode_rf),         
+    .cur_day_of_week_o     (cur_day_of_week_rf),    
+    .cur_day_of_month_o    (cur_day_of_month_rf),  
+    .cur_month_o           (cur_month_rf),         
+    .cur_year_o            (cur_year_rf)           
   );
 
   ir_ctrl ir (
-    .ir_i(ir_i),
-    .clk_i(),       
-    .rstn_i(rstn_i),
+    .ir_i                  (ir_i),
+    .clk_i                 (CLK_APB),       
+    .rstn_i                (rstn_i),
 
-    .cur_sec_o(),
-    .cur_min_o(),
-    .cur_hour_o(),
-    .cur_mode_o(),
-    .cur_day_of_week_o(),
-    .cur_day_of_month_o(),
-    .cur_month_o(),
-    .cur_year_o()
+    .cur_sec_i             (cur_sec_rf),
+    .cur_min_i             (cur_min_rf),
+    .cur_hour_i            (cur_hour_rf),
+    .cur_mode_i            (cur_mode_rf),
+    .cur_day_of_week_i     (cur_day_of_week_rf),
+    .cur_day_of_month_i    (cur_day_of_month_rf),
+    .cur_month_i           (cur_month_rf),
+    .cur_year_i            (cur_year_rf),
 
-    .ir_out_sec_i(),              
-    .ir_out_min_i(),              
-    .ir_out_hour_i(),             
-    .ir_out_mode_i(),             
-    .ir_out_day_of_week_i(),      
-    .ir_out_day_of_month_i(),     
-    .ir_out_month_i(),            
-    .ir_out_year_i(),
+    .ir_out_sec_i          (ir_out_sec_rf),              
+    .ir_out_min_i          (ir_out_min_rf),              
+    .ir_out_hour_i         (ir_out_hour_rf),             
+    .ir_out_mode_i         (ir_out_mode_rf),             
+    .ir_out_day_of_week_i  (ir_out_day_of_week_rf),      
+    .ir_out_day_of_month_i (ir_out_day_of_month_rf),     
+    .ir_out_month_i        (ir_out_month_rf),            
+    .ir_out_year_i         (ir_out_year_rf),
 
-    .ir_in_sec_o(),              
-    .ir_in_min_o(),              
-    .ir_in_hour_o(),             
-    .ir_in_mode_o(),             
-    .ir_in_day_of_week_o(),      
-    .ir_in_day_of_month_o(),     
-    .ir_in_month_o(),            
-    .ir_in_year_o(),
-    .ir_o()
+    .ir_in_sec_o           (ir_in_sec_rf),              
+    .ir_in_min_o           (ir_in_min_rf),              
+    .ir_in_hour_o          (ir_in_hour_rf),             
+    .ir_in_mode_o          (ir_in_mode_rf),             
+    .ir_in_day_of_week_o   (ir_in_day_of_week_rf),      
+    .ir_in_day_of_month_o  (ir_in_day_of_month_rf),     
+    .ir_in_month_o         (ir_in_month_rf),            
+    .ir_in_year_o          (ir_in_year_rf),
+    .ir_o                  (ir_o)
   );
 
   rtc_am rf (
-    .clk(),
-    .arst_n(),
-    .s_apb(),
-    .hwif_in(),
-    .hwif_out()
+    .clk      (CLK_APB),
+    .arst_n   (rstn_i),
+    .PREADY   (PREADY),
+    .PRDATA   (PRDATA),
+    .PSLVERR  (PSLVERR),
+    .PSEL     (PSEL),
+    .PWRITE   (PWRITE),
+    .PADDR    (PADDR),
+    .PWDATA   (PWDATA),
+    .hwif_in  (hwif_in),
+    .hwif_out (hwif_out)
   );
 
 endmodule

@@ -1,35 +1,44 @@
-module clk_gen (
-  input  logic        clk_external_i,
-  input  logic        gen_en_i,
-  input  logic        rstn_i,
-  input  logic        sel_clk_i,
-  input  logic [31:0] const_i,
-  output logic        clk_1Hz_o
+`include "/tools/PDK_DDK/CORELIB8DLL_3.1.a/verilog/CORELIB8DLL.v"
+
+module ring_oscillator #(
+  parameter INVERTERS_PER_RING
+  //parameter INVERTER_DELAY
+) (
+  input  logic enable_i,
+  output logic clk_o
 );
-  
-  logic clk_ro;
-  logic clk_mux;
 
-  divider div (
-    .clk_i(clk_mux),
-    .const_i(const_i),
-    .enable_i(gen_en_i),
-    .rstn_i(rstn_i),
-    .clk_o(clk_1Hz_o)
-  );
+  // initial begin
+  //   assert( (INVERTERS_PER_RING >= 3) && (INVERTERS_PER_RING % 2 != 0) );
+  // end
 
-  ring_oscillator ro (
-    .enable_i(gen_en_i),
-    .clk_o(clk_ro)
-  );
-  defparam ro.INVERTERS_PER_RING=5; //Must be odd number
-  defparam ro.INVERTER_DELAY=1;
+  logic [INVERTERS_PER_RING-1:0] wires;
+  assign clk_o = wires[0];
+	
+	genvar i;
+  generate
+    ND2LL inv_en (
+    	.A(enable_i),
+	  	.B(wires[INVERTERS_PER_RING - 1]),
+    	.Z(wires[0])
+    );
 
-  always_comb begin 
-    case (sel_clk_i)
-      1'b0 : clk_mux = clk_ro;
-      1'b1 : clk_mux = clk_external_i;
-    endcase
-  end
-  
+    for (i = 1; i < INVERTERS_PER_RING; i++) begin
+	    IVLL inv[i] (
+		    .A(wires[i]),
+	      .Z(wires[i-1])
+	    );
+    end
+	endgenerate
+
+  //genvar i;
+  //generate
+  //  for(i=0; i<INVERTERS_PER_RING; i=i+1) begin
+  //    if (i == 0)
+  //      IVLL (wires[i], enable_i ? wires[INVERTERS_PER_RING-1] : 0);
+  //    else
+  //      IVLL (wires[i], wires[i-1]);
+  //  end
+  //endgenerate
+
 endmodule
