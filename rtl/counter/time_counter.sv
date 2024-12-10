@@ -1,5 +1,5 @@
 module time_counter(
-  input  logic        enable_i,                 // Сигнал включения счетчика
+  input  logic        enable_i,               // Сигнал включения счетчика
   input  logic        clk_1Hz_i,              // Тактовый сигнал
   input  logic        rstn_i,                 // Сигнал сброса
   input  logic        mode_i,                 // Режим отображения времени (1-12 часов, 0-24 часа)
@@ -22,7 +22,28 @@ module time_counter(
   output logic [11:0] cur_year_o              // Год
 );
 
-  logic [4:0] max_day_in_month;
+  logic        en_preset_change;
+  logic        en_preset_i_prev;
+  logic        en_preset_rise;
+  logic        enable_change;
+  logic        enable_i_prev;
+  logic        enable_rise;
+  logic [ 4:0] max_day_in_month;
+  logic [ 5:0] sec_59;
+  logic [ 5:0] min_59;
+  logic [ 5:0] hour_11;
+  logic [ 5:0] hour_12;
+  logic [ 5:0] hour_23;
+  logic        flag_AM;
+  logic        flag_PM;
+  logic [ 4:0] DoM_max;
+  logic [ 2:0] DoW_7;
+  logic [ 3:0] month_12;
+  logic [ 3:0] month_feb;
+  logic [11:0] leap_year;
+  logic [ 3:0] month_30d;
+  logic        mode_12;
+  logic        mode_24;
 
   always_comb begin
     sec_59     = (cur_sec_o == 59);
@@ -35,11 +56,9 @@ module time_counter(
     DoM_max    = (cur_day_of_month_o == max_day_in_month);
     DoW_7      = (cur_day_of_week_o == 7);
     month_12   = (cur_month_o == 12);
-
     month_feb  = (cur_month_o == 2);
     leap_year  = ((cur_year_o[1:0] == 0 && cur_year_o != 2100) || (cur_year_o  == 2000));
     month_30d  = (cur_month_o == 4 || cur_month_o == 6 || cur_month_o == 9 || cur_month_o == 11);
-
     mode_12    = (mode_i == 1);
     mode_24    = (mode_i == 0);
   end
@@ -60,8 +79,31 @@ module time_counter(
     end
   end
   
+  always_ff @(posedge clk_1Hz_i or negedge rstn_i) begin : detecting_rise_en_preset_i
+    if (!rstn_i) begin
+      en_preset_i_prev <= 0;
+      en_preset_rise   <= 0;
+    end else begin
+      en_preset_change <= en_preset_i ^ en_preset_i_prev;
+      en_preset_rise   <= en_preset_change && en_preset_i;
+      en_preset_i_prev <= en_preset_i;
+    end  
+  end
+
+  always_ff @(posedge clk_1Hz_i or negedge rstn_i) begin : detecting_rise_enable_i
+    if (!rstn_i) begin
+      enable_i_prev <= 0;
+      enable_rise   <= 0;
+    end else begin
+      enable_change <= enable_i ^ enable_i_prev;
+      enable_rise   <= enable_change && enable_i;
+      enable_i_prev <= enable_i;
+    end  
+  end
+
+
   always_ff @(posedge clk_1Hz_i or negedge rstn_i) begin
-    if (!rstn_i) begin : reset_value
+    if (!rstn_i || !enable_i) begin : reset_value
       cur_sec_o           <= 0; 
       cur_min_o           <= 0; 
       cur_day_of_week_o   <= 1;
@@ -77,7 +119,7 @@ module time_counter(
       end
     end
 
-    else if (enable_i && !en_preset_i) begin : write_default_value_when_enable
+    else if (enable_rise && !en_preset_rise) begin : write_default_value_when_enable
       cur_sec_o           <= 0; 
       cur_min_o           <= 0; 
       cur_day_of_week_o   <= 1;
@@ -93,7 +135,7 @@ module time_counter(
       end
     end
 
-    else if (enable_i && en_preset_i) begin : write_initial_value_when_enable
+    else if (enable_rise && en_preset_rise || enable_i && en_preset_rise) begin : write_initial_value_when_enable
       cur_sec_o           <= init_sec_i;
       cur_min_o           <= init_min_i;
       cur_hour_o          <= init_hour_i;
@@ -103,9 +145,9 @@ module time_counter(
       cur_year_o          <= init_year_i;
       cur_mode_o          <= init_mode_i;
     end
-
+  
     //counter 
-    else begin : time_and_date_counter
+    else if (enable_i) begin : time_and_date_counter
 
       cur_sec_o <= cur_sec_o + 1;
 

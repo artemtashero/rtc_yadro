@@ -3,6 +3,7 @@
 module tb_time_counter;
 
   // Inputs
+  logic        enable;
   logic        clk_1Hz;
   logic        rstn;
   logic        mode;
@@ -27,26 +28,27 @@ module tb_time_counter;
   logic [11:0] cur_year;
 
   time_counter dut (
-    .clk_1Hz_i(clk_1Hz), 
-    .rstn_i(rstn), 
-    .mode_i(mode), 
-    .en_preset_i(en_preset), 
-    .init_sec_i(init_sec), 
-    .init_min_i(init_min), 
-    .init_hour_i(init_hour), 
-    .init_mode_i(init_mode),
-    .init_day_of_week_i(init_day_of_week), 
-    .init_day_of_month_i(init_day_of_month), 
-    .init_month_i(init_month), 
-    .init_year_i(init_year), 
-    .cur_sec_o(cur_sec), 
-    .cur_min_o(cur_min), 
-    .cur_hour_o(cur_hour),
-    .cur_mode_o(cur_mode),
-    .cur_day_of_week_o(cur_day_of_week), 
-    .cur_day_of_month_o(cur_day_of_month), 
-    .cur_month_o(cur_month), 
-    .cur_year_o(cur_year)
+    .enable_i            (enable),
+    .clk_1Hz_i           (clk_1Hz), 
+    .rstn_i              (rstn), 
+    .mode_i              (mode), 
+    .en_preset_i         (en_preset), 
+    .init_sec_i          (init_sec), 
+    .init_min_i          (init_min), 
+    .init_hour_i         (init_hour), 
+    .init_mode_i         (init_mode),
+    .init_day_of_week_i  (init_day_of_week), 
+    .init_day_of_month_i (init_day_of_month), 
+    .init_month_i        (init_month), 
+    .init_year_i         (init_year), 
+    .cur_sec_o           (cur_sec), 
+    .cur_min_o           (cur_min), 
+    .cur_hour_o          (cur_hour),
+    .cur_mode_o          (cur_mode),
+    .cur_day_of_week_o   (cur_day_of_week), 
+    .cur_day_of_month_o  (cur_day_of_month), 
+    .cur_month_o         (cur_month), 
+    .cur_year_o          (cur_year)
   );
 
   initial begin
@@ -65,42 +67,42 @@ module tb_time_counter;
 
   // Test Stimuli
   initial begin
-    // Initialize Inputs
     mode = 0; // Start in 24-hour mode
+    enable = 1;
     en_preset = 0;
-    //init_sec = 0;
-    //init_min = 0;
-    //init_hour = 0;
-    //init_mode = 2'b00;
-    //init_day_of_week = 1; // Sunday
-    //init_day_of_month = 1;
-    //init_month = 1; // January
-    //init_year = 20; // Year 2020
-
-    // Wait for reset to finish
-    #200;
-
+    #2000;
+    #20;
+    enable = 0;
+    #20;
+    enable = 1;
+    mode = 1;
+    #2000;
+    mode = 0;
     // Enable preset to set initial time
-    en_preset = 1;
-    init_sec = 50;
+    init_sec = 58;
     init_min = 59;
     init_hour = 23;
-    init_day_of_week = 5; // Friday
+    init_day_of_week = 7; 
     init_day_of_month = 31;
-    init_month = 12; // December
-    init_year = 11'd2021; // Year 2021
-    #20; // Apply preset for 1 second
+    init_month = 12; 
+    init_year = 11'd2021;
+    init_mode = 0; 
+
+    #20;
+    en_preset = 1;
+
+    #20; 
     en_preset = 0;
 
     // Change to 12-hour mode
-    #400; // Wait for the next few cycles
+    #400; 
     mode = 1;
     en_preset = 1;
-    init_sec = 50;
+    init_sec = 58;
     init_min = 59;
     init_hour = 11;
     init_mode = 2'b11;
-    init_day_of_week = 5; // Friday
+    init_day_of_week = 7; // Friday
     init_day_of_month = 31;
     init_month = 12; // December
     init_year = 11'd2021; // Year 2021
@@ -110,18 +112,51 @@ module tb_time_counter;
     #400; // Wait for the next few cycles
     mode = 1;
     en_preset = 1;
-    init_sec = 50;
+    init_sec = 58;
     init_min = 59;
     init_hour = 11;
     init_mode = 2'b01;
-    init_day_of_week = 5; // Friday
+    init_day_of_week = 7; // Friday
     init_day_of_month = 31;
     init_month = 12; // December
     init_year = 11'd2021; // Year 2021
     #20; // Apply preset for 1 second
     en_preset = 0;
 
-    
+    #400; // Wait for the next few cycles
+    mode = 1;
+    en_preset = 1;
+    init_sec = 58;
+    init_min = 59;
+    init_hour = 12;
+    init_mode = 2'b01;
+    init_day_of_week = 7; // Friday
+    init_day_of_month = 31;
+    init_month = 12; // December
+    init_year = 11'd2021; // Year 2021
+    #20; // Apply preset for 1 second
+    en_preset = 0;
+
+    #400; // Wait for the next few cycles
+    mode = 1;
+    en_preset = 1;
+    init_sec = 58;
+    init_min = 59;
+    init_hour = 11;
+    init_mode = 2'b11;
+    init_day_of_week = 7; // Friday
+    init_day_of_month = 28;
+    init_month = 2; // December
+    init_year = 11'd2004; // Year 2021
+    #20; // Apply preset for 1 second
+    en_preset = 0;
+
+    #400;
+
+    enable = 0;
+    #100;
+    enable = 1;
+
     #10000; // Simulate for a significant duration to see the time change
 
     // End of simulation

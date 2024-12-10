@@ -1,21 +1,59 @@
 module rtc_top (
-  input  logic ir_i,
-  input  logic clk_external_i,
-  input  logic CLK_APB,
-  input  logic rstn_i,
-  input  logic PREADY,
-  input  logic PRDATA,
-  input  logic PSLVERR,
-  input  logic PSEL,
-  input  logic PWRITE,
-  input  logic PADDR,
-  input  logic PWDATA,
-  input  logic hwif_in,
-  output logic hwif_out,
-  output logic ir_o
+  input  logic        ir_i,
+  input  logic        clk_external_i,
+  input  logic        CLK_APB,
+  input  logic        rstn_i,
+  input  logic        PREADY,
+  input  logic [31:0] PRDATA,
+  input  logic        PSLVERR,
+  input  logic        PSEL,
+  input  logic        PWRITE,
+  input  logic [31:0] PADDR,
+  input  logic [31:0] PWDATA,
+  input  logic [31:0] hwif_in,
+  output logic [31:0] hwif_out,
+  output logic        ir_o
 );
   
-  logic clk_1Hz;
+  logic        clk_1Hz;
+  logic        gen_en_rf;
+  logic        sel_clk_rf;
+  logic [31:0] const_rf;
+  logic        enable_rf;
+  logic        mode_rf;
+  logic        en_preset_rf;
+  logic [ 5:0] init_sec_rf;
+  logic [ 5:0] init_min_rf;
+  logic [ 5:0] init_hour_rf;
+  logic        init_mode_rf;
+  logic [ 2:0] init_day_of_week_rf;
+  logic [ 4:0] init_day_of_month_rf;
+  logic [ 3:0] init_month_rf;
+  logic [11:0] init_year_rf;
+  logic [ 5:0] cur_sec_rf;
+  logic [ 5:0] cur_min_rf;
+  logic [ 5:0] cur_hour_rf;
+  logic        cur_mode_rf;
+  logic [ 2:0] cur_day_of_week_rf;
+  logic [ 4:0] cur_day_of_month_rf;
+  logic [ 3:0] cur_month_rf;
+  logic [11:0] cur_year_rf;
+  logic [ 5:0] ir_in_sec_rf;
+  logic [ 5:0] ir_in_min_rf;
+  logic [ 5:0] ir_in_hour_rf;
+  logic        ir_in_mode_rf;
+  logic [ 2:0] ir_in_day_of_week_rf;
+  logic [ 4:0] ir_in_day_of_month_rf;
+  logic [ 3:0] ir_in_month_rf;
+  logic [11:0] ir_in_year_rf;
+  logic [ 5:0] ir_out_sec_rf;
+  logic [ 5:0] ir_out_min_rf;
+  logic [ 5:0] ir_out_hour_rf;
+  logic        ir_out_mode_rf;
+  logic [ 2:0] ir_out_day_of_week_rf;
+  logic [ 4:0] ir_out_day_of_month_rf;
+  logic [ 3:0] ir_out_month_rf;
+  logic [11:0] ir_out_year_rf;
 
   rtc_am_pkg::rtc_am__in_t hwif_in;
   rtc_am_pkg::rtc_am__out_t hwif_out;
