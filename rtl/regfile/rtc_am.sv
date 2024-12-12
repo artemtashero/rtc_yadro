@@ -4,17 +4,18 @@
 module rtc_am (
         input wire clk,
         input wire arst_n,
+        
+        input  logic        PENABLE,
+        input  logic        PSEL,
+        input  logic        PWRITE,
+        input  logic [31:0] PADDR,
+        input  logic [31:0] PWDATA,
+        output logic        PSLVERR,
+        output logic        PREADY,
+        output logic [31:0] PRDATA,
 
-        input logic PREADY,
-        input logic PRDATA,
-        input logic PSLVERR,
-        input logic PSEL,
-        input logic PWRITE,
-        input logic PADDR,
-        input logic PWDATA,
         input rtc_am_pkg::rtc_am__in_t hwif_in,
         output rtc_am_pkg::rtc_am__out_t hwif_out
-      //  apb_if.sp s_apb,
     );
 
     localparam RST_ACTIVE_LEVEL = 0;
@@ -48,7 +49,7 @@ module rtc_am (
             cpuif_wr_data <= '0;
         end else begin
             if(~is_active) begin
-                if(PSEL) begin
+                if(PSEL && PENABLE) begin
                     is_active <= '1;
                     cpuif_req <= '1;
                     cpuif_req_is_wr <= PWRITE;
@@ -735,13 +736,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_sec_reg.sec.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_sec_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_sec_reg.sec.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_sec_reg.sec.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_sec_reg.sec.next;
+        load_next_c = '1;
         field_combo.cur_sec_reg.sec.next = next_c;
         field_combo.cur_sec_reg.sec.load_next = load_next_c;
     end
@@ -759,13 +757,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_min_reg.min.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_min_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_min_reg.min.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_min_reg.min.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_min_reg.min.next;
+        load_next_c = '1;
         field_combo.cur_min_reg.min.next = next_c;
         field_combo.cur_min_reg.min.load_next = load_next_c;
     end
@@ -783,13 +778,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_hours_reg.hour.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_hours_reg.hour.value & ~decoded_wr_biten[4:0]) | (decoded_wr_data[4:0] & decoded_wr_biten[4:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_hours_reg.hour.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_hours_reg.hour.next;
+        load_next_c = '1;
         field_combo.cur_hours_reg.hour.next = next_c;
         field_combo.cur_hours_reg.hour.load_next = load_next_c;
     end
@@ -807,13 +799,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_hours_reg.mode_12_24.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_hours_reg.mode_12_24.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_hours_reg.mode_12_24.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_hours_reg.mode_12_24.next;
+        load_next_c = '1;
         field_combo.cur_hours_reg.mode_12_24.next = next_c;
         field_combo.cur_hours_reg.mode_12_24.load_next = load_next_c;
     end
@@ -831,13 +820,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_hours_reg.mode_AM_PM.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_hours_reg.mode_AM_PM.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_hours_reg.mode_AM_PM.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_hours_reg.mode_AM_PM.next;
+        load_next_c = '1;
         field_combo.cur_hours_reg.mode_AM_PM.next = next_c;
         field_combo.cur_hours_reg.mode_AM_PM.load_next = load_next_c;
     end
@@ -855,13 +841,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_day_of_week_reg.day_of_week.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_day_of_week_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_day_of_week_reg.day_of_week.value & ~decoded_wr_biten[2:0]) | (decoded_wr_data[2:0] & decoded_wr_biten[2:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_day_of_week_reg.day_of_week.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_day_of_week_reg.day_of_week.next;
+        load_next_c = '1;
         field_combo.cur_day_of_week_reg.day_of_week.next = next_c;
         field_combo.cur_day_of_week_reg.day_of_week.load_next = load_next_c;
     end
@@ -879,13 +862,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_day_of_month_reg.day_of_month.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_day_of_month_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_day_of_month_reg.day_of_month.value & ~decoded_wr_biten[4:0]) | (decoded_wr_data[4:0] & decoded_wr_biten[4:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_day_of_month_reg.day_of_month.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_day_of_month_reg.day_of_month.next;
+        load_next_c = '1;
         field_combo.cur_day_of_month_reg.day_of_month.next = next_c;
         field_combo.cur_day_of_month_reg.day_of_month.load_next = load_next_c;
     end
@@ -903,13 +883,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_month_reg.month.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_month_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_month_reg.month.value & ~decoded_wr_biten[3:0]) | (decoded_wr_data[3:0] & decoded_wr_biten[3:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_month_reg.month.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_month_reg.month.next;
+        load_next_c = '1;
         field_combo.cur_month_reg.month.next = next_c;
         field_combo.cur_month_reg.month.load_next = load_next_c;
     end
@@ -927,13 +904,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.cur_year_reg.year.value;
         load_next_c = '0;
-        if(decoded_reg_strb.cur_year_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.cur_year_reg.year.value & ~decoded_wr_biten[11:0]) | (decoded_wr_data[11:0] & decoded_wr_biten[11:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.cur_year_reg.year.next;
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.cur_year_reg.year.next;
+        load_next_c = '1;
         field_combo.cur_year_reg.year.next = next_c;
         field_combo.cur_year_reg.year.load_next = load_next_c;
     end
@@ -1161,10 +1135,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_sec_reg.sec.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_sec_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_sec_reg.sec.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_sec_reg.sec.next;
+        load_next_c = '1;
         field_combo.ir_in_sec_reg.sec.next = next_c;
         field_combo.ir_in_sec_reg.sec.load_next = load_next_c;
     end
@@ -1182,10 +1156,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_min_reg.min.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_min_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_min_reg.min.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_min_reg.min.next;
+        load_next_c = '1;
         field_combo.ir_in_min_reg.min.next = next_c;
         field_combo.ir_in_min_reg.min.load_next = load_next_c;
     end
@@ -1203,10 +1177,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_hours_reg.hour.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_hours_reg.hour.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_hours_reg.hour.next;
+        load_next_c = '1;
         field_combo.ir_in_hours_reg.hour.next = next_c;
         field_combo.ir_in_hours_reg.hour.load_next = load_next_c;
     end
@@ -1224,10 +1198,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_hours_reg.mode_12_24.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_hours_reg.mode_12_24.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_hours_reg.mode_12_24.next;
+        load_next_c = '1;
         field_combo.ir_in_hours_reg.mode_12_24.next = next_c;
         field_combo.ir_in_hours_reg.mode_12_24.load_next = load_next_c;
     end
@@ -1245,10 +1219,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_hours_reg.mode_AM_PM.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_hours_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_hours_reg.mode_AM_PM.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_hours_reg.mode_AM_PM.next;
+        load_next_c = '1;
         field_combo.ir_in_hours_reg.mode_AM_PM.next = next_c;
         field_combo.ir_in_hours_reg.mode_AM_PM.load_next = load_next_c;
     end
@@ -1266,10 +1240,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_day_of_week_reg.day_of_week.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_day_of_week_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_day_of_week_reg.day_of_week.value & ~decoded_wr_biten[2:0]) | (decoded_wr_data[2:0] & decoded_wr_biten[2:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_day_of_week_reg.day_of_week.next;
+        load_next_c = '1;
         field_combo.ir_in_day_of_week_reg.day_of_week.next = next_c;
         field_combo.ir_in_day_of_week_reg.day_of_week.load_next = load_next_c;
     end
@@ -1287,10 +1261,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_day_of_month_reg.day_of_month.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_day_of_month_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_day_of_month_reg.day_of_month.value & ~decoded_wr_biten[4:0]) | (decoded_wr_data[4:0] & decoded_wr_biten[4:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_day_of_month_reg.day_of_month.next;
+        load_next_c = '1;
         field_combo.ir_in_day_of_month_reg.day_of_month.next = next_c;
         field_combo.ir_in_day_of_month_reg.day_of_month.load_next = load_next_c;
     end
@@ -1308,10 +1282,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_month_reg.month.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_month_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_month_reg.month.value & ~decoded_wr_biten[3:0]) | (decoded_wr_data[3:0] & decoded_wr_biten[3:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_month_reg.month.next;
+        load_next_c = '1;
         field_combo.ir_in_month_reg.month.next = next_c;
         field_combo.ir_in_month_reg.month.load_next = load_next_c;
     end
@@ -1329,10 +1303,10 @@ module rtc_am (
         automatic logic load_next_c;
         next_c = field_storage.ir_in_year_reg.year.value;
         load_next_c = '0;
-        if(decoded_reg_strb.ir_in_year_reg && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.ir_in_year_reg.year.value & ~decoded_wr_biten[11:0]) | (decoded_wr_data[11:0] & decoded_wr_biten[11:0]);
-            load_next_c = '1;
-        end
+        
+        // HW Write
+        next_c = hwif_in.ir_in_year_reg.year.next;
+        load_next_c = '1;
         field_combo.ir_in_year_reg.year.next = next_c;
         field_combo.ir_in_year_reg.year.load_next = load_next_c;
     end
@@ -1352,9 +1326,6 @@ module rtc_am (
         load_next_c = '0;
         if(decoded_reg_strb.ir_out_sec_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_sec_reg.sec.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_sec_reg.sec.next;
             load_next_c = '1;
         end
         field_combo.ir_out_sec_reg.sec.next = next_c;
@@ -1377,9 +1348,6 @@ module rtc_am (
         if(decoded_reg_strb.ir_out_min_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_min_reg.min.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_min_reg.min.next;
-            load_next_c = '1;
         end
         field_combo.ir_out_min_reg.min.next = next_c;
         field_combo.ir_out_min_reg.min.load_next = load_next_c;
@@ -1400,9 +1368,6 @@ module rtc_am (
         load_next_c = '0;
         if(decoded_reg_strb.ir_out_hours_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_hours_reg.hour.value & ~decoded_wr_biten[5:0]) | (decoded_wr_data[5:0] & decoded_wr_biten[5:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_hours_reg.hour.next;
             load_next_c = '1;
         end
         field_combo.ir_out_hours_reg.hour.next = next_c;
@@ -1425,9 +1390,6 @@ module rtc_am (
         if(decoded_reg_strb.ir_out_hours_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_hours_reg.mode_12_24.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_hours_reg.mode_12_24.next;
-            load_next_c = '1;
         end
         field_combo.ir_out_hours_reg.mode_12_24.next = next_c;
         field_combo.ir_out_hours_reg.mode_12_24.load_next = load_next_c;
@@ -1448,9 +1410,6 @@ module rtc_am (
         load_next_c = '0;
         if(decoded_reg_strb.ir_out_hours_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_hours_reg.mode_AM_PM.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_hours_reg.mode_AM_PM.next;
             load_next_c = '1;
         end
         field_combo.ir_out_hours_reg.mode_AM_PM.next = next_c;
@@ -1473,9 +1432,6 @@ module rtc_am (
         if(decoded_reg_strb.ir_out_day_of_week_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_day_of_week_reg.day_of_week.value & ~decoded_wr_biten[2:0]) | (decoded_wr_data[2:0] & decoded_wr_biten[2:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_day_of_week_reg.day_of_week.next;
-            load_next_c = '1;
         end
         field_combo.ir_out_day_of_week_reg.day_of_week.next = next_c;
         field_combo.ir_out_day_of_week_reg.day_of_week.load_next = load_next_c;
@@ -1496,9 +1452,6 @@ module rtc_am (
         load_next_c = '0;
         if(decoded_reg_strb.ir_out_day_of_month_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_day_of_month_reg.day_of_month.value & ~decoded_wr_biten[4:0]) | (decoded_wr_data[4:0] & decoded_wr_biten[4:0]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_day_of_month_reg.day_of_month.next;
             load_next_c = '1;
         end
         field_combo.ir_out_day_of_month_reg.day_of_month.next = next_c;
@@ -1521,9 +1474,6 @@ module rtc_am (
         if(decoded_reg_strb.ir_out_month_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_month_reg.month.value & ~decoded_wr_biten[3:0]) | (decoded_wr_data[3:0] & decoded_wr_biten[3:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_month_reg.month.next;
-            load_next_c = '1;
         end
         field_combo.ir_out_month_reg.month.next = next_c;
         field_combo.ir_out_month_reg.month.load_next = load_next_c;
@@ -1545,9 +1495,6 @@ module rtc_am (
         if(decoded_reg_strb.ir_out_year_reg && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.ir_out_year_reg.year.value & ~decoded_wr_biten[11:0]) | (decoded_wr_data[11:0] & decoded_wr_biten[11:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.ir_out_year_reg.year.next;
-            load_next_c = '1;
         end
         field_combo.ir_out_year_reg.year.next = next_c;
         field_combo.ir_out_year_reg.year.load_next = load_next_c;
@@ -1566,7 +1513,7 @@ module rtc_am (
     //--------------------------------------------------------------------------
     assign cpuif_wr_ack = decoded_req & decoded_req_is_wr;
     // Writes are always granted with no error response
-    assign cpuif_wr_err = '0;
+    assign cpuif_wr_err = undecoded_addr_strb;
 
     //--------------------------------------------------------------------------
     // Readback
@@ -1655,7 +1602,7 @@ module rtc_am (
     always_comb begin
         automatic logic [31:0] readback_data_var;
         readback_done = decoded_req & ~decoded_req_is_wr;
-        readback_err = '0;
+        readback_err = undecoded_addr_strb;
         readback_data_var = '0;
         for(int i=0; i<31; i++) readback_data_var |= readback_array[i];
         readback_data = readback_data_var;

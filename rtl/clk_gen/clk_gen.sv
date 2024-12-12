@@ -27,8 +27,9 @@ module clk_gen (
 
   always_comb begin 
     case (sel_clk_i)
-      1'b0 : clk_mux = clk_ro;
-      1'b1 : clk_mux = clk_external_i;
+      '0      : clk_mux = clk_ro;
+      '1      : clk_mux = clk_external_i;
+      default : clk_mux = clk_ro;
     endcase
   end
   

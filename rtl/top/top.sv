@@ -3,16 +3,15 @@ module rtc_top (
   input  logic        clk_external_i,
   input  logic        CLK_APB,
   input  logic        rstn_i,
-  input  logic        PREADY,
-  input  logic [31:0] PRDATA,
-  input  logic        PSLVERR,
+  input  logic        PENABLE,
   input  logic        PSEL,
   input  logic        PWRITE,
   input  logic [31:0] PADDR,
   input  logic [31:0] PWDATA,
-  input  logic [31:0] hwif_in,
-  output logic [31:0] hwif_out,
-  output logic        ir_o
+  output logic        PSLVERR,
+  output logic [31:0] PRDATA,
+  output logic        ir_o,
+  output logic        PREADY
 );
   
   logic        clk_1Hz;
@@ -24,32 +23,32 @@ module rtc_top (
   logic        en_preset_rf;
   logic [ 5:0] init_sec_rf;
   logic [ 5:0] init_min_rf;
-  logic [ 5:0] init_hour_rf;
-  logic        init_mode_rf;
+  logic [ 4:0] init_hour_rf;
+  logic [ 1:0] init_mode_rf;
   logic [ 2:0] init_day_of_week_rf;
   logic [ 4:0] init_day_of_month_rf;
   logic [ 3:0] init_month_rf;
   logic [11:0] init_year_rf;
   logic [ 5:0] cur_sec_rf;
   logic [ 5:0] cur_min_rf;
-  logic [ 5:0] cur_hour_rf;
-  logic        cur_mode_rf;
+  logic [ 4:0] cur_hour_rf;
+  logic [ 1:0] cur_mode_rf;
   logic [ 2:0] cur_day_of_week_rf;
   logic [ 4:0] cur_day_of_month_rf;
   logic [ 3:0] cur_month_rf;
   logic [11:0] cur_year_rf;
   logic [ 5:0] ir_in_sec_rf;
   logic [ 5:0] ir_in_min_rf;
-  logic [ 5:0] ir_in_hour_rf;
-  logic        ir_in_mode_rf;
+  logic [ 4:0] ir_in_hour_rf;
+  logic [ 1:0] ir_in_mode_rf;
   logic [ 2:0] ir_in_day_of_week_rf;
   logic [ 4:0] ir_in_day_of_month_rf;
   logic [ 3:0] ir_in_month_rf;
   logic [11:0] ir_in_year_rf;
   logic [ 5:0] ir_out_sec_rf;
   logic [ 5:0] ir_out_min_rf;
-  logic [ 5:0] ir_out_hour_rf;
-  logic        ir_out_mode_rf;
+  logic [ 4:0] ir_out_hour_rf;
+  logic [ 1:0] ir_out_mode_rf;
   logic [ 2:0] ir_out_day_of_week_rf;
   logic [ 4:0] ir_out_day_of_month_rf;
   logic [ 3:0] ir_out_month_rf;
@@ -62,7 +61,7 @@ module rtc_top (
     //CLK GEN signals
     gen_en_rf  = hwif_out.config_reg.gen_en.value;
     sel_clk_rf = hwif_out.config_reg.sel_clk.value;
-    const_rf   = hwif_out.config_reg.const_.value;
+    const_rf   = hwif_out.const_reg.const_.value;
     //---------------------------------------------------
 
     //TIME COUNTER signals
@@ -78,27 +77,27 @@ module rtc_top (
     init_month_rf        = hwif_out.init_month_reg.month.value;
     init_year_rf         = hwif_out.init_year_reg.year.value;
 
-    hwif_in.field_storage.cur_sec_reg.sec.value                   = cur_sec_rf;
-    hwif_in.field_storage.cur_min_reg.min.value                   = cur_min_rf;
-    hwif_in.field_storage.cur_hours_reg.hour.value                = cur_hour_rf;
-    hwif_in.field_storage.cur_hours_reg.mode_12_24.value          = cur_mode_rf[0];
-    hwif_in.field_storage.cur_hours_reg.mode_AM_PM.value          = cur_mode_rf[1];
-    hwif_in.field_storage.cur_day_of_week_reg.day_of_week.value   = cur_day_of_week_rf;
-    hwif_in.field_storage.cur_day_of_month_reg.day_of_month.value = cur_day_of_month_rf;
-    hwif_in.field_storage.cur_month_reg.month.value               = cur_month_rf;
-    hwif_in.field_storage.cur_year_reg.year.value                 = cur_year_rf;
+    hwif_in.cur_sec_reg.sec.next                   = cur_sec_rf;
+    hwif_in.cur_min_reg.min.next                   = cur_min_rf;
+    hwif_in.cur_hours_reg.hour.next                = cur_hour_rf;
+    hwif_in.cur_hours_reg.mode_12_24.next          = cur_mode_rf[0];
+    hwif_in.cur_hours_reg.mode_AM_PM.next          = cur_mode_rf[1];
+    hwif_in.cur_day_of_week_reg.day_of_week.next   = cur_day_of_week_rf;
+    hwif_in.cur_day_of_month_reg.day_of_month.next = cur_day_of_month_rf;
+    hwif_in.cur_month_reg.month.next               = cur_month_rf;
+    hwif_in.cur_year_reg.year.next                 = cur_year_rf;
     //---------------------------------------------------
 
     //INTERRUPT CONTROL signals
-    hwif_in.field_storage.ir_in_sec_reg.sec.value                   = ir_in_sec_rf;
-    hwif_in.field_storage.ir_in_min_reg.min.value                   = ir_in_min_rf;
-    hwif_in.field_storage.ir_in_hours_reg.hour.value                = ir_in_hour_rf;
-    hwif_in.field_storage.ir_in_hours_reg.mode_12_24.value          = ir_in_mode_rf[0];
-    hwif_in.field_storage.ir_in_hours_reg.mode_AM_PM.value          = ir_in_mode_rf[1];
-    hwif_in.field_storage.ir_in_day_of_week_reg.day_of_week.value   = ir_in_day_of_week_rf;
-    hwif_in.field_storage.ir_in_day_of_month_reg.day_of_month.value = ir_in_day_of_month_rf;
-    hwif_in.field_storage.ir_in_month_reg.month.value               = ir_in_month_rf;
-    hwif_in.field_storage.ir_in_year_reg.year.value                 = ir_in_year_rf;
+    hwif_in.ir_in_sec_reg.sec.next                   = ir_in_sec_rf;
+    hwif_in.ir_in_min_reg.min.next                   = ir_in_min_rf;
+    hwif_in.ir_in_hours_reg.hour.next                = ir_in_hour_rf;
+    hwif_in.ir_in_hours_reg.mode_12_24.next          = ir_in_mode_rf[0];
+    hwif_in.ir_in_hours_reg.mode_AM_PM.next          = ir_in_mode_rf[1];
+    hwif_in.ir_in_day_of_week_reg.day_of_week.next   = ir_in_day_of_week_rf;
+    hwif_in.ir_in_day_of_month_reg.day_of_month.next = ir_in_day_of_month_rf;
+    hwif_in.ir_in_month_reg.month.next               = ir_in_month_rf;
+    hwif_in.ir_in_year_reg.year.next                 = ir_in_year_rf;
 
     ir_out_sec_rf          = hwif_out.ir_out_sec_reg.sec.value;
     ir_out_min_rf          = hwif_out.ir_out_min_reg.min.value;
@@ -183,6 +182,7 @@ module rtc_top (
   rtc_am rf (
     .clk      (CLK_APB),
     .arst_n   (rstn_i),
+    .PENABLE  (PENABLE),
     .PREADY   (PREADY),
     .PRDATA   (PRDATA),
     .PSLVERR  (PSLVERR),

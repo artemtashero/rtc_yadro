@@ -6,7 +6,7 @@ module time_counter(
   input  logic        en_preset_i,            // Сигнал разрешения записи начала отсчета   
   input  logic [ 5:0] init_sec_i,             // Начальные секунды
   input  logic [ 5:0] init_min_i,             // Начальные минуты
-  input  logic [ 5:0] init_hour_i,            // Начальные часы
+  input  logic [ 4:0] init_hour_i,            // Начальные часы
   input  logic [ 1:0] init_mode_i,            // Начальный режим
   input  logic [ 2:0] init_day_of_week_i,     // Начальный день недели
   input  logic [ 4:0] init_day_of_month_i,    // Начальный день месяца
@@ -14,26 +14,26 @@ module time_counter(
   input  logic [11:0] init_year_i,            // Начальный год
   output logic [ 5:0] cur_sec_o,              // Секунды (00-59)
   output logic [ 5:0] cur_min_o,              // Минуты (00-59)
-  output logic [ 5:0] cur_hour_o,             // Часы (00-23 или 01-12)
+  output logic [ 4:0] cur_hour_o,             // Часы (00-23 или 01-12)
   output logic [ 1:0] cur_mode_o,             // Текущий режим (0 бит - 12/24, 1 бит - АМ/РМ)
   output logic [ 2:0] cur_day_of_week_o,      // День недели (1[воскресенье]-7[понедельник])
   output logic [ 4:0] cur_day_of_month_o,     // День месяца (01-31)
   output logic [ 3:0] cur_month_o,            // Месяц (01-12)
   output logic [11:0] cur_year_o              // Год
 );
-
-  logic        en_preset_change;
+  logic        en_done;
+  // logic        en_preset_change;
   logic        en_preset_i_prev;
   logic        en_preset_rise;
-  logic        enable_change;
+  // logic        enable_change;
   logic        enable_i_prev;
   logic        enable_rise;
   logic [ 4:0] max_day_in_month;
   logic [ 5:0] sec_59;
   logic [ 5:0] min_59;
-  logic [ 5:0] hour_11;
-  logic [ 5:0] hour_12;
-  logic [ 5:0] hour_23;
+  logic [ 4:0] hour_11;
+  logic [ 4:0] hour_12;
+  logic [ 4:0] hour_23;
   logic        flag_AM;
   logic        flag_PM;
   logic [ 4:0] DoM_max;
@@ -84,8 +84,8 @@ module time_counter(
       en_preset_i_prev <= 0;
       en_preset_rise   <= 0;
     end else begin
-      en_preset_change <= en_preset_i ^ en_preset_i_prev;
-      en_preset_rise   <= en_preset_change && en_preset_i;
+      // en_preset_change <= en_preset_i ^ en_preset_i_prev;
+      en_preset_rise   <= (en_preset_i ^ en_preset_i_prev) && en_preset_i;
       en_preset_i_prev <= en_preset_i;
     end  
   end
@@ -95,8 +95,8 @@ module time_counter(
       enable_i_prev <= 0;
       enable_rise   <= 0;
     end else begin
-      enable_change <= enable_i ^ enable_i_prev;
-      enable_rise   <= enable_change && enable_i;
+      // enable_change <= enable_i ^ enable_i_prev;
+      enable_rise   <= (enable_i ^ enable_i_prev) && enable_i;
       enable_i_prev <= enable_i;
     end  
   end
@@ -117,6 +117,7 @@ module time_counter(
         cur_mode_o        <= 2'b00;
         cur_hour_o        <= 0;
       end
+      en_done             <= 0;
     end
 
     else if (enable_rise && !en_preset_rise) begin : write_default_value_when_enable
@@ -133,9 +134,10 @@ module time_counter(
         cur_mode_o        <= 2'b00;
         cur_hour_o        <= 0;
       end
+      en_done             <= 1;
     end
 
-    else if (enable_rise && en_preset_rise || enable_i && en_preset_rise) begin : write_initial_value_when_enable
+    else if (enable_i && en_preset_rise) begin : write_initial_value_when_enable
       cur_sec_o           <= init_sec_i;
       cur_min_o           <= init_min_i;
       cur_hour_o          <= init_hour_i;
@@ -144,10 +146,10 @@ module time_counter(
       cur_month_o         <= init_month_i;
       cur_year_o          <= init_year_i;
       cur_mode_o          <= init_mode_i;
+      en_done             <= 1;
     end
   
-    //counter 
-    else if (enable_i) begin : time_and_date_counter
+    else if (enable_i && en_done) begin : time_and_date_counter
 
       cur_sec_o <= cur_sec_o + 1;
 

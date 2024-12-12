@@ -74,69 +74,69 @@ package rtc_am_pkg;
 
     typedef struct {
         logic [5:0] next;
-    } rtc_am__ir_out_sec_reg__sec__in_t;
+    } rtc_am__ir_in_sec_reg__sec__in_t;
 
     typedef struct {
-        rtc_am__ir_out_sec_reg__sec__in_t sec;
-    } rtc_am__ir_out_sec_reg__in_t;
-
-    typedef struct {
-        logic [5:0] next;
-    } rtc_am__ir_out_min_reg__min__in_t;
-
-    typedef struct {
-        rtc_am__ir_out_min_reg__min__in_t min;
-    } rtc_am__ir_out_min_reg__in_t;
+        rtc_am__ir_in_sec_reg__sec__in_t sec;
+    } rtc_am__ir_in_sec_reg__in_t;
 
     typedef struct {
         logic [5:0] next;
-    } rtc_am__ir_out_hours_reg__hour__in_t;
+    } rtc_am__ir_in_min_reg__min__in_t;
+
+    typedef struct {
+        rtc_am__ir_in_min_reg__min__in_t min;
+    } rtc_am__ir_in_min_reg__in_t;
+
+    typedef struct {
+        logic [5:0] next;
+    } rtc_am__ir_in_hours_reg__hour__in_t;
 
     typedef struct {
         logic next;
-    } rtc_am__ir_out_hours_reg__mode_12_24__in_t;
+    } rtc_am__ir_in_hours_reg__mode_12_24__in_t;
 
     typedef struct {
         logic next;
-    } rtc_am__ir_out_hours_reg__mode_AM_PM__in_t;
+    } rtc_am__ir_in_hours_reg__mode_AM_PM__in_t;
 
     typedef struct {
-        rtc_am__ir_out_hours_reg__hour__in_t hour;
-        rtc_am__ir_out_hours_reg__mode_12_24__in_t mode_12_24;
-        rtc_am__ir_out_hours_reg__mode_AM_PM__in_t mode_AM_PM;
-    } rtc_am__ir_out_hours_reg__in_t;
+        rtc_am__ir_in_hours_reg__hour__in_t hour;
+        rtc_am__ir_in_hours_reg__mode_12_24__in_t mode_12_24;
+        rtc_am__ir_in_hours_reg__mode_AM_PM__in_t mode_AM_PM;
+    } rtc_am__ir_in_hours_reg__in_t;
 
     typedef struct {
         logic [2:0] next;
-    } rtc_am__ir_out_day_of_week_reg__day_of_week__in_t;
+    } rtc_am__ir_in_day_of_week_reg__day_of_week__in_t;
 
     typedef struct {
-        rtc_am__ir_out_day_of_week_reg__day_of_week__in_t day_of_week;
-    } rtc_am__ir_out_day_of_week_reg__in_t;
+        rtc_am__ir_in_day_of_week_reg__day_of_week__in_t day_of_week;
+    } rtc_am__ir_in_day_of_week_reg__in_t;
 
     typedef struct {
         logic [4:0] next;
-    } rtc_am__ir_out_day_of_month_reg__day_of_month__in_t;
+    } rtc_am__ir_in_day_of_month_reg__day_of_month__in_t;
 
     typedef struct {
-        rtc_am__ir_out_day_of_month_reg__day_of_month__in_t day_of_month;
-    } rtc_am__ir_out_day_of_month_reg__in_t;
+        rtc_am__ir_in_day_of_month_reg__day_of_month__in_t day_of_month;
+    } rtc_am__ir_in_day_of_month_reg__in_t;
 
     typedef struct {
         logic [3:0] next;
-    } rtc_am__ir_out_month_reg__month__in_t;
+    } rtc_am__ir_in_month_reg__month__in_t;
 
     typedef struct {
-        rtc_am__ir_out_month_reg__month__in_t month;
-    } rtc_am__ir_out_month_reg__in_t;
+        rtc_am__ir_in_month_reg__month__in_t month;
+    } rtc_am__ir_in_month_reg__in_t;
 
     typedef struct {
         logic [11:0] next;
-    } rtc_am__ir_out_year_reg__year__in_t;
+    } rtc_am__ir_in_year_reg__year__in_t;
 
     typedef struct {
-        rtc_am__ir_out_year_reg__year__in_t year;
-    } rtc_am__ir_out_year_reg__in_t;
+        rtc_am__ir_in_year_reg__year__in_t year;
+    } rtc_am__ir_in_year_reg__in_t;
 
     typedef struct {
         rtc_am__cur_sec_reg__in_t cur_sec_reg;
@@ -146,13 +146,13 @@ package rtc_am_pkg;
         rtc_am__cur_day_of_month_reg__in_t cur_day_of_month_reg;
         rtc_am__cur_month_reg__in_t cur_month_reg;
         rtc_am__cur_year_reg__in_t cur_year_reg;
-        rtc_am__ir_out_sec_reg__in_t ir_out_sec_reg;
-        rtc_am__ir_out_min_reg__in_t ir_out_min_reg;
-        rtc_am__ir_out_hours_reg__in_t ir_out_hours_reg;
-        rtc_am__ir_out_day_of_week_reg__in_t ir_out_day_of_week_reg;
-        rtc_am__ir_out_day_of_month_reg__in_t ir_out_day_of_month_reg;
-        rtc_am__ir_out_month_reg__in_t ir_out_month_reg;
-        rtc_am__ir_out_year_reg__in_t ir_out_year_reg;
+        rtc_am__ir_in_sec_reg__in_t ir_in_sec_reg;
+        rtc_am__ir_in_min_reg__in_t ir_in_min_reg;
+        rtc_am__ir_in_hours_reg__in_t ir_in_hours_reg;
+        rtc_am__ir_in_day_of_week_reg__in_t ir_in_day_of_week_reg;
+        rtc_am__ir_in_day_of_month_reg__in_t ir_in_day_of_month_reg;
+        rtc_am__ir_in_month_reg__in_t ir_in_month_reg;
+        rtc_am__ir_in_year_reg__in_t ir_in_year_reg;
     } rtc_am__in_t;
 
     typedef struct {
@@ -176,9 +176,14 @@ package rtc_am_pkg;
     } rtc_am__config_reg__sel_mode__out_t;
 
     typedef struct {
+        logic value;
+    } rtc_am__config_reg__en_preset__out_t;
+
+    typedef struct {
         rtc_am__config_reg__gen_en__out_t gen_en;
         rtc_am__config_reg__sel_clk__out_t sel_clk;
         rtc_am__config_reg__sel_mode__out_t sel_mode;
+        rtc_am__config_reg__en_preset__out_t en_preset;
     } rtc_am__config_reg__out_t;
 
     typedef struct {
